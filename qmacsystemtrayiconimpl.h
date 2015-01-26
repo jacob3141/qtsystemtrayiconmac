@@ -1,6 +1,6 @@
 #import <AppKit/AppKit.h>
 
-@interface StatusItemView : NSView {
+@interface QMacSystemTrayIconImpl : NSView {
   @private
     NSImage *_image;
     NSImage *_alternateImage;

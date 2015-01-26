@@ -1,12 +1,10 @@
-#import "StatusItemView.h"
-#include <QMacNativeWidget>
-#include <QHBoxLayout>
-#include <QPushButton>
-#include <QLineEdit>
+#import "qmacsystemtrayiconimpl.h"
+
+#include <QWidget>
 
 #define STATUS_ITEM_VIEW_WIDTH_WITH_TIME 60.0
 
-@implementation StatusItemView
+@implementation QMacSystemTrayIconImpl
 
 @synthesize statusItem = _statusItem;
 @synthesize image = _image;
@@ -43,7 +41,7 @@
     NSRect screenRect = [[[NSScreen screens] objectAtIndex:0] frame];
     NSRect statusRect = NSZeroRect;
 
-    StatusItemView *statusItemView = self;
+    QMacSystemTrayIconImpl *statusItemView = self;
 
     if (statusItemView) {
         statusRect = statusItemView.globalRect;
