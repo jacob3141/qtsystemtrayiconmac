@@ -140,11 +140,11 @@ int main(int argc, char *argv[])
 
 
     // Stare the Cocoa event loop.
-    [(NSApplication *)NSApp run];
-    [NSApp release];
-    [pool release];
-    exit(0);
-    return 0;
+//    [(NSApplication *)NSApp run];
+//    [NSApp release];
+//    [pool release];
+    //exit(0);
+    return app.exec();
 }
 
 

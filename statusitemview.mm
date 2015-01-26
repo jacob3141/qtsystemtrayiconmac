@@ -15,8 +15,6 @@
 @synthesize action = _action;
 @synthesize target = _target;
 
-#pragma mark -
-
 - (id)initWithStatusItem:(NSStatusItem *)statusItem {
     CGFloat itemWidth = [statusItem length];
     CGFloat itemHeight = [[NSStatusBar systemStatusBar] thickness];
@@ -55,10 +53,6 @@
     return statusRect;
 }
 
-
-
-#pragma mark -
-
 - (void)drawRect:(NSRect)dirtyRect {
     [self.statusItem drawStatusBarBackgroundInRect:dirtyRect withHighlight:self.isHighlighted];
 
@@ -92,15 +86,10 @@
     [self setNeedsDisplay:YES];
 }
 
-#pragma mark -
-#pragma mark Mouse tracking
-
 - (void)mouseDown:(NSEvent *)theEvent {
     [NSApp sendAction:self.action to:self.target from:self];
 }
 
-#pragma mark -
-#pragma mark Accessors
 
 - (void)setHighlighted:(BOOL)newFlag {
     if (_isHighlighted == newFlag)
@@ -109,7 +98,6 @@
     [self setNeedsDisplay:YES];
 }
 
-#pragma mark -
 
 - (void)setImage:(NSImage *)newImage {
     if (_image != newImage) {
@@ -127,8 +115,6 @@
     }
 }
 
-#pragma mark -
-
 - (NSRect)globalRect {
     NSRect frame = [self frame];
     frame.origin = [self.window convertBaseToScreen:frame.origin];
@@ -136,7 +122,7 @@
 }
 
 - (BOOL)isDarkMode {
-    return [[NSAppearance currentAppearance].name hasPrefix:@"NSAppearanceNameVibrantDark"];
+    return [[[NSAppearance currentAppearance] name] hasPrefix:@"NSAppearanceNameVibrantDark"];
 }
 
 @end
