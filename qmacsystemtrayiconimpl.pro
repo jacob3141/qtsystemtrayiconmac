@@ -1,4 +1,5 @@
 TEMPLATE = lib
+CONFIG += staticlib
 
 QT += gui widgets
 
