@@ -1,17 +1,51 @@
 #import "qmacsystemtrayiconimpl.h"
+#import "cocoaimagehelper.h"
 
 #include <QWidget>
 
+// Objective C
 #define STATUS_ITEM_VIEW_WIDTH_WITH_TIME 60.0
 
-@implementation QMacSystemTrayIconImpl
+// Interface declaration
+#import <AppKit/AppKit.h>
 
-@synthesize statusItem = _statusItem;
-@synthesize image = _image;
-@synthesize alternateImage = _alternateImage;
-@synthesize isHighlighted = _isHighlighted;
-@synthesize action = _action;
-@synthesize target = _target;
+@interface QMacSystemTrayIconObjc : NSView {
+  @private
+    NSImage *               _lightThemeImage;
+    NSImage *               _darkThemeImage;
+    NSStatusItem *          _statusItem;
+    BOOL                    _isHighlighted;
+    SEL                     _action;
+    __unsafe_unretained id  _target;
+
+    QMacSystemTrayIconImpl * _impl;
+}
+
+- (id)initWithStatusItem:(NSStatusItem *)statusItem;
+
+@property(nonatomic, strong, readonly) NSStatusItem *   statusItem;
+@property(nonatomic, strong) NSImage *                  lightThemeImage;
+@property(nonatomic, strong) NSImage *                  darkThemeImage;
+@property(nonatomic, copy) NSString *                   title;
+@property(nonatomic, setter=setHighlighted :) BOOL      isHighlighted;
+@property(nonatomic, readonly) NSRect                   globalRect;
+@property(nonatomic) SEL                                action;
+@property(nonatomic, unsafe_unretained) id              target;
+
+@property QMacSystemTrayIconImpl *                      impl;
+
+@end
+
+// Objective-C implementation
+@implementation QMacSystemTrayIconObjc
+
+@synthesize statusItem      = _statusItem;
+@synthesize lightThemeImage = _lightThemeImage;
+@synthesize darkThemeImage  = _darkThemeImage;
+@synthesize isHighlighted   = _isHighlighted;
+@synthesize action          = _action;
+@synthesize target          = _target;
+@synthesize impl            = _impl;
 
 - (id)initWithStatusItem:(NSStatusItem *)statusItem {
     CGFloat itemWidth = [statusItem length];
@@ -30,18 +64,14 @@
 
 - (IBAction)togglePanel:(id)sender {
     NSRect rect = [self statusRect];
-    QWidget *widget = new QWidget();
-    widget->setFixedSize(QSize(100, 100));
-
-    widget->move(rect.origin.x, rect.origin.y);
-    widget->show();
+    _impl->trayIconToggled(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
 }
 
 - (NSRect)statusRect {
     NSRect screenRect = [[[NSScreen screens] objectAtIndex:0] frame];
     NSRect statusRect = NSZeroRect;
 
-    QMacSystemTrayIconImpl *statusItemView = self;
+    QMacSystemTrayIconObjc *statusItemView = self;
 
     if (statusItemView) {
         statusRect = statusItemView.globalRect;
@@ -54,8 +84,8 @@
 - (void)drawRect:(NSRect)dirtyRect {
     [self.statusItem drawStatusBarBackgroundInRect:dirtyRect withHighlight:self.isHighlighted];
 
-    NSImage *icon = self.isHighlighted ? self.alternateImage : self.image;
-    icon = [self isDarkMode] ? self.alternateImage : icon;
+    NSImage *icon = self.isHighlighted ? self.darkThemeImage : self.lightThemeImage;
+    icon = [self isDarkMode] ? self.darkThemeImage : icon;
 
     NSSize iconSize = [icon size];
     NSRect bounds = self.bounds;
@@ -97,16 +127,16 @@
 }
 
 
-- (void)setImage:(NSImage *)newImage {
-    if (_image != newImage) {
-        _image = newImage;
+- (void)setDarkThemeImage:(NSImage *)image {
+    if (_darkThemeImage != image) {
+        _darkThemeImage = image;
         [self setNeedsDisplay:YES];
     }
 }
 
-- (void)setAlternateImage:(NSImage *)newImage {
-    if (_alternateImage != newImage) {
-        _alternateImage = newImage;
+- (void)setLightThemeImage:(NSImage *)image {
+    if (_lightThemeImage != image) {
+        _lightThemeImage = image;
         if (self.isHighlighted) {
             [self setNeedsDisplay:YES];
         }
@@ -124,4 +154,40 @@
 }
 
 @end
+
+// C++
+QMacSystemTrayIconImpl::QMacSystemTrayIconImpl(QObject *parent)
+    : QObject(parent) {
+    NSStatusItem *statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:25];
+    _macSystemTrayIconObjc = [[QMacSystemTrayIconObjc alloc] initWithStatusItem:statusItem];
+    [_macSystemTrayIconObjc setImpl:this];
+}
+
+void QMacSystemTrayIconImpl::setLightThemePixmap(QPixmap pixmap) {
+    static_cast<QMacSystemTrayIconObjc*>(_macSystemTrayIconObjc).lightThemeImage = pixmapToNSImage(pixmap);
+}
+
+void QMacSystemTrayIconImpl::setDarkThemePixmap(QPixmap pixmap) {
+    static_cast<QMacSystemTrayIconObjc*>(_macSystemTrayIconObjc).darkThemeImage = pixmapToNSImage(pixmap);
+}
+
+void QMacSystemTrayIconImpl::setText(QString text) {
+    [_macSystemTrayIconObjc setTitle:text.toNSString()];
+}
+
+QMacSystemTrayIconImpl::MacOSXTheme QMacSystemTrayIconImpl::macOSXTheme() {
+    if([_macSystemTrayIconObjc isDarkMode]) {
+        return QMacSystemTrayIconImpl::MacOSXThemeDark;
+    } else {
+        return QMacSystemTrayIconImpl::MacOSXThemeLight;
+    }
+}
+
+void QMacSystemTrayIconImpl::trayIconToggled(int x, int y, int w, int h) {
+    emit trayIconToggled(QRect(x, y, w, h));
+}
+
+
+
+
 

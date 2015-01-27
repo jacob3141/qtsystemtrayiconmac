@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-OBJECTIVE_SOURCES += main.mm \
+OBJECTIVE_SOURCES += \
     cocoaimagehelper.mm \
     qmacsystemtrayiconimpl.mm
 LIBS += -framework Cocoa
@@ -10,9 +10,11 @@ QT += widgets-private gui-private core-private
 
 HEADERS += \
     cocoaimagehelper.h \
-    qmacsystemtrayiconimpl.h
+    qmacsystemtrayiconimpl.h \
+    widget.h
 
-SOURCES +=
+SOURCES += \
+    main.cpp
 
 RESOURCES += \
     resources.qrc
