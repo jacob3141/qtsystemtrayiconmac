@@ -184,10 +184,13 @@ QMacSystemTrayIconImpl::MacOSXTheme QMacSystemTrayIconImpl::macOSXTheme() {
 }
 
 void QMacSystemTrayIconImpl::trayIconToggled(int x, int y, int w, int h) {
-    emit trayIconToggled(QRect(x, y, w, h));
+    _geometry = QRect(x, y, w, h);
+    emit trayIconToggled(_geometry);
 }
 
-
+QRect QMacSystemTrayIconImpl::geometry() const {
+    return _geometry;
+}
 
 
 

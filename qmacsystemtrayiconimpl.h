@@ -21,10 +21,13 @@ public:
 
     void trayIconToggled(int x, int y, int w, int h);
 
+    QRect geometry() const;
+
 signals:
     void trayIconToggled(QRect geometry);
 
 private:
 
     void *_macSystemTrayIconObjc;
+    QRect _geometry;
 };
