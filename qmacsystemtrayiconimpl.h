@@ -20,7 +20,8 @@ public:
 
     QRect geometry() const;
 
-    void trigger();
+    void triggerLeftMouseDown();
+    void triggerRightMouseDown();
 
 signals:
     void geometryChanged(QRect geometry);

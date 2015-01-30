@@ -59,10 +59,6 @@
     return self;
 }
 
-- (IBAction)togglePanel:(id)sender {
-    _impl->trigger();
-}
-
 - (NSRect)geometry {
     NSRect screenRect = [[[NSScreen screens] objectAtIndex:0] frame];
     NSRect statusRect = NSZeroRect;
@@ -108,7 +104,11 @@
 }
 
 - (void)mouseDown:(NSEvent *)theEvent {
-    [NSApp sendAction:self.action to:self.target from:self];
+    _impl->triggerLeftMouseDown();
+}
+
+- (void)rightMouseDown:(NSEvent *)event {
+    _impl->triggerRightMouseDown();
 }
 
 - (void)setHighlighted:(BOOL)newFlag {
@@ -174,9 +174,14 @@ QMacSystemTrayIconImpl::MacOSXTheme QMacSystemTrayIconImpl::macOSXTheme() {
     }
 }
 
-void QMacSystemTrayIconImpl::trigger() {
+void QMacSystemTrayIconImpl::triggerLeftMouseDown() {
     emit geometryChanged(geometry());
     emit activated(QSystemTrayIcon::Trigger);
+}
+
+void QMacSystemTrayIconImpl::triggerRightMouseDown() {
+    emit geometryChanged(geometry());
+    emit activated(QSystemTrayIcon::Context);
 }
 
 QRect QMacSystemTrayIconImpl::geometry() const {
