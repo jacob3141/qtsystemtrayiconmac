@@ -1,6 +1,7 @@
 
 #include <QPixmap>
 #include <QRect>
+#include <QSystemTrayIcon>
 
 class QMacSystemTrayIconImpl : public QObject {
     Q_OBJECT
@@ -10,21 +11,20 @@ public:
         MacOSXThemeLight
     };
 
-    QMacSystemTrayIconImpl(QObject *parent = 0);
+    QMacSystemTrayIconImpl(QObject *parent = 0, float width = 80.0);
 
     void setLightThemePixmap(QPixmap pixmap);
     void setDarkThemePixmap(QPixmap pixmap);
-
     void setText(QString text);
-
     MacOSXTheme macOSXTheme();
-
-    void trayIconToggled(int x, int y, int w, int h);
 
     QRect geometry() const;
 
+    void trigger();
+
 signals:
-    void trayIconToggled(QRect geometry);
+    void geometryChanged(QRect geometry);
+    void activated(QSystemTrayIcon::ActivationReason);
 
 private:
 

@@ -4,7 +4,6 @@
 #include <QWidget>
 
 // Objective C
-#define STATUS_ITEM_VIEW_WIDTH_WITH_TIME 60.0
 
 // Interface declaration
 #import <AppKit/AppKit.h>
@@ -47,10 +46,8 @@
 @synthesize target          = _target;
 @synthesize impl            = _impl;
 
-- (id)initWithStatusItem:(NSStatusItem *)statusItem {
-    CGFloat itemWidth = [statusItem length];
-    CGFloat itemHeight = [[NSStatusBar systemStatusBar] thickness];
-    NSRect itemRect = NSMakeRect(0.0, 0.0, itemWidth, itemHeight);
+- (id)initWithStatusItem:(NSStatusItem *)statusItem width:(CGFloat)width {
+    NSRect itemRect = NSMakeRect(0.0, 0.0, width, [[NSStatusBar systemStatusBar] thickness]);
     self = [super initWithFrame:itemRect];
 
     if (self != nil) {
@@ -63,16 +60,14 @@
 }
 
 - (IBAction)togglePanel:(id)sender {
-    NSRect rect = [self statusRect];
-    _impl->trayIconToggled(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
+    _impl->trigger();
 }
 
-- (NSRect)statusRect {
+- (NSRect)geometry {
     NSRect screenRect = [[[NSScreen screens] objectAtIndex:0] frame];
     NSRect statusRect = NSZeroRect;
 
     QMacSystemTrayIconObjc *statusItemView = self;
-
     if (statusItemView) {
         statusRect = statusItemView.globalRect;
         // the next line converts apple's crazy coordinate system to Qt's
@@ -109,8 +104,6 @@
 
 - (void)setTitle:(NSString *)title {
     _title = title;
-    self.statusItem.length = STATUS_ITEM_VIEW_WIDTH_WITH_TIME;
-
     [self setNeedsDisplay:YES];
 }
 
@@ -118,14 +111,12 @@
     [NSApp sendAction:self.action to:self.target from:self];
 }
 
-
 - (void)setHighlighted:(BOOL)newFlag {
     if (_isHighlighted == newFlag)
         return;
     _isHighlighted = newFlag;
     [self setNeedsDisplay:YES];
 }
-
 
 - (void)setDarkThemeImage:(NSImage *)image {
     if (_darkThemeImage != image) {
@@ -156,10 +147,10 @@
 @end
 
 // C++
-QMacSystemTrayIconImpl::QMacSystemTrayIconImpl(QObject *parent)
+QMacSystemTrayIconImpl::QMacSystemTrayIconImpl(QObject *parent, float width)
     : QObject(parent) {
-    NSStatusItem *statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:25];
-    _macSystemTrayIconObjc = [[QMacSystemTrayIconObjc alloc] initWithStatusItem:statusItem];
+    NSStatusItem *statusItem = [[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
+    _macSystemTrayIconObjc = [[QMacSystemTrayIconObjc alloc] initWithStatusItem:statusItem width:width];
     [_macSystemTrayIconObjc setImpl:this];
 }
 
@@ -183,13 +174,14 @@ QMacSystemTrayIconImpl::MacOSXTheme QMacSystemTrayIconImpl::macOSXTheme() {
     }
 }
 
-void QMacSystemTrayIconImpl::trayIconToggled(int x, int y, int w, int h) {
-    _geometry = QRect(x, y, w, h);
-    emit trayIconToggled(_geometry);
+void QMacSystemTrayIconImpl::trigger() {
+    emit geometryChanged(geometry());
+    emit activated(QSystemTrayIcon::Trigger);
 }
 
 QRect QMacSystemTrayIconImpl::geometry() const {
-    return _geometry;
+    NSRect rect = [_macSystemTrayIconObjc geometry];
+    return QRect(rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
 }
 
 
