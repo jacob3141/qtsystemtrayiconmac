@@ -1,12 +1,10 @@
 TEMPLATE = lib
 CONFIG += staticlib
 
-QT += gui widgets
+QT += gui widgets macextras
 
 HEADERS += \
-    cocoaimagehelper.h \
-    qmacsystemtrayiconimpl.h
+    qsystemtrayiconmac.h
 
 OBJECTIVE_SOURCES += \
-    cocoaimagehelper.mm \
-    qmacsystemtrayiconimpl.mm
+    qsystemtrayiconmac.mm

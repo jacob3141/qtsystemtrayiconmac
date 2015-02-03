@@ -1,9 +1,9 @@
-
+// Qt includes
 #include <QPixmap>
 #include <QRect>
 #include <QSystemTrayIcon>
 
-class QMacSystemTrayIconImpl : public QObject {
+class QSystemTrayIconMac : public QObject {
     Q_OBJECT
 public:
     enum MacOSXTheme {
@@ -11,24 +11,27 @@ public:
         MacOSXThemeLight
     };
 
-    QMacSystemTrayIconImpl(QObject *parent = 0, float width = 80.0);
+    QSystemTrayIconMac(QObject *parent = 0);
+    QSystemTrayIconMac(const QIcon &icon, QObject *parent = 0);
 
-    void setLightThemePixmap(QPixmap pixmap);
-    void setDarkThemePixmap(QPixmap pixmap);
+    void setIcon(QIcon icon);
+
     void setText(QString text);
+
     MacOSXTheme macOSXTheme();
 
     QRect geometry() const;
 
-    void triggerLeftMouseDown();
-    void triggerRightMouseDown();
+
+    void trigger();
 
 signals:
     void geometryChanged(QRect geometry);
     void activated(QSystemTrayIcon::ActivationReason);
 
 private:
+    void initialize();
 
-    void *_macSystemTrayIconObjc;
-    QRect _geometry;
+    void *_statusItem;
+    void *_statusItemListener;
 };
