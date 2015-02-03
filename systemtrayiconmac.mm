@@ -1,26 +1,26 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// This file is part of QMacSystemTrayIconImpl.                               //
+// This file is part of QtSystemTrayIconMac.                                  //
 // Copyright (c) 2014 Jacob Dawid <jacob@omg-it.works>                        //
 //                                                                            //
-// QMacSystemTrayIconImpl is free software: you can redistribute it and/or    //
+// QtSystemTrayIconMac is free software: you can redistribute it and/or       //
 // modify it under the terms of the GNU Affero General Public License as      //
 // published by the Free Software Foundation, either version 3 of the         //
 // License, or (at your option) any later version.                            //
 //                                                                            //
-// QMacSystemTrayIconImpl is distributed in the hope that it will be useful,  //
+// QtSystemTrayIconMac is distributed in the hope that it will be useful,     //
 // but WITHOUT ANY WARRANTY; without even the implied warranty of             //
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the              //
 // GNU Affero General Public License for more details.                        //
 //                                                                            //
 // You should have received a copy of the GNU Affero General Public           //
-// License along with QMacSystemTrayIconImpl.                                 //
+// License along with QtSystemTrayIconMac.                                    //
 // If not, see <http://www.gnu.org/licenses/>.                                //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
 // Own includes
-#import "qsystemtrayiconmac.h"
+#import "systemtrayiconmac.h"
 
 // Qt includes
 #include <QWidget>
@@ -29,12 +29,12 @@
 #import <AppKit/AppKit.h>
 
 @interface StatusItemListener : NSObject
-@property QSystemTrayIconMac* trayIcon;
+@property SystemTrayIconMac* trayIcon;
 @end
 
 @implementation StatusItemListener
 
-- (void)configureForTrayIcon:(QSystemTrayIconMac*)trayIcon {
+- (void)configureForTrayIcon:(SystemTrayIconMac*)trayIcon {
     self.trayIcon = trayIcon;
 }
 
@@ -44,18 +44,18 @@
 
 @end
 
-QSystemTrayIconMac::QSystemTrayIconMac(QObject *parent)
+SystemTrayIconMac::SystemTrayIconMac(QObject *parent)
     : QObject(parent) {
     initialize();
 }
 
-QSystemTrayIconMac::QSystemTrayIconMac(const QIcon &icon, QObject *parent)
+SystemTrayIconMac::SystemTrayIconMac(const QIcon &icon, QObject *parent)
     : QObject(parent) {
     initialize();
     setIcon(icon);
 }
 
-void QSystemTrayIconMac::initialize() {
+void SystemTrayIconMac::initialize() {
     _statusItem = (void*)[[NSStatusBar systemStatusBar] statusItemWithLength:NSVariableStatusItemLength];
     [_statusItem retain];
 
@@ -68,29 +68,29 @@ void QSystemTrayIconMac::initialize() {
     [(StatusItemListener*)_statusItemListener configureForTrayIcon:this];
 }
 
-void QSystemTrayIconMac::setIcon(QIcon icon) {
+void SystemTrayIconMac::setIcon(QIcon icon) {
     CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
     [(NSStatusItem *)_statusItem setImage:QtMac::toNSImage(icon.pixmap(QSize(thickness, thickness)))];
 }
 
-void QSystemTrayIconMac::setText(QString text) {
+void SystemTrayIconMac::setText(QString text) {
     [(NSStatusItem *)_statusItem setTitle:text.toNSString()];
 }
 
-QSystemTrayIconMac::MacOSXTheme QSystemTrayIconMac::macOSXTheme() {
+SystemTrayIconMac::MacOSXTheme SystemTrayIconMac::macOSXTheme() {
     if([[[NSAppearance currentAppearance] name] hasPrefix:@"NSAppearanceNameVibrantDark"]) {
-        return QSystemTrayIconMac::MacOSXThemeDark;
+        return SystemTrayIconMac::MacOSXThemeDark;
     } else {
-        return QSystemTrayIconMac::MacOSXThemeLight;
+        return SystemTrayIconMac::MacOSXThemeLight;
     }
 }
 
-void QSystemTrayIconMac::trigger() {
+void SystemTrayIconMac::trigger() {
     emit geometryChanged(geometry());
     emit activated(QSystemTrayIcon::Trigger);
 }
 
-QRect QSystemTrayIconMac::geometry() const {
+QRect SystemTrayIconMac::geometry() const {
     NSRect screenRect = [[[NSScreen screens] objectAtIndex:0] frame];
     NSButton *trayIconButton = [(NSStatusItem*)_statusItem button];
 

@@ -25,7 +25,7 @@ CONFIG += staticlib
 QT += gui widgets macextras
 
 HEADERS += \
-    qsystemtrayiconmac.h
+    systemtrayiconmac.h
 
 OBJECTIVE_SOURCES += \
-    qsystemtrayiconmac.mm
+    systemtrayiconmac.mm
