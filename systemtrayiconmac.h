@@ -34,7 +34,7 @@ public:
     SystemTrayIconMac(QObject *parent = 0);
     SystemTrayIconMac(const QIcon &icon, QObject *parent = 0);
 
-    void setIcon(QIcon icon);
+    void setIcon(QIcon icon, unsigned int margin = 0);
 
     void setText(QString text);
 
