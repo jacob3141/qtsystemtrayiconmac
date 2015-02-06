@@ -68,9 +68,11 @@ void SystemTrayIconMac::initialize() {
     [(StatusItemListener*)_statusItemListener configureForTrayIcon:this];
 }
 
-void SystemTrayIconMac::setIcon(QIcon icon) {
+void SystemTrayIconMac::setIcon(QIcon icon, unsigned int margin) {
     CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
-    [(NSStatusItem *)_statusItem setImage:QtMac::toNSImage(icon.pixmap(QSize(thickness, thickness)))];
+    NSSize s;
+    s.width = s.height = thickness - margin;
+    [(NSStatusItem *)_statusItem setImage: [[NSImage alloc]initWithCGImage: QtMac::toCGImageRef(icon.pixmap(QSize(s.width*4, s.width*4))) size: s]]  ;
 }
 
 void SystemTrayIconMac::setText(QString text) {
