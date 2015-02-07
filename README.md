@@ -1,3 +1,5 @@
+[![Qt Pods](http://qt-pods.org/assets/logo.png "Qt Pods")](http://qt-pods.org)
+
 # QtSystemTrayIconMac
 QtSystemTrayIconMac is an alternative QSystemTrayIcon implementation for MacOSX. It supports MacOSX specific features such as text next to the tray icon and distinction between dark and light theme, but tries to be as compatible to QSystemTrayIcon as possible.
 
