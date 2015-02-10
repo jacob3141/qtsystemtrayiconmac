@@ -4,4 +4,6 @@ INCLUDEPATH += \
 LIBS += \
     -L../qtsystemtrayiconmac -lqtsystemtrayiconmac
 
-LIBS += -framework Cocoa
+mac {
+    LIBS += -framework Cocoa
+}

@@ -22,7 +22,11 @@
 TEMPLATE = lib
 CONFIG += staticlib
 
-QT += gui widgets macextras
+QT += gui widgets
+
+mac {
+    QT += macextras
+}
 
 HEADERS += \
     systemtrayiconmac.h
