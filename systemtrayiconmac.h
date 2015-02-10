@@ -26,23 +26,36 @@
 class SystemTrayIconMac : public QObject {
     Q_OBJECT
 public:
+    // MacOSX specific.
+    // Please keep in mind to ifdef these in your code when not on MacOSX.
     enum MacOSXTheme {
         MacOSXThemeDark,
         MacOSXThemeLight
     };
 
-    SystemTrayIconMac(QObject *parent = 0);
-    SystemTrayIconMac(const QIcon &icon, QObject *parent = 0);
-
-    void setIcon(QIcon icon, unsigned int margin = 0);
-
     void setText(QString text);
 
     MacOSXTheme macOSXTheme();
 
+    // QSystemTrayIcon compatible.
+    SystemTrayIconMac(QObject *parent = 0);
+    SystemTrayIconMac(const QIcon &icon, QObject *parent = 0);
+
+    /**
+     * Doesn't do anything, just for compatibiliy with QSystemTrayIcon.
+     */
+    void show();
+
+    QIcon icon() const;
+    void setIcon(QIcon icon, unsigned int margin = 0);
+
+    QString toolTip() const;
+    void setToolTip(const QString &tip);
+
     QRect geometry() const;
+    bool isVisible() const;
 
-
+    // Do not use this. This is called internal to trigger a click.
     void trigger();
 
 signals:
@@ -51,6 +64,9 @@ signals:
 
 private:
     void initialize();
+
+    QIcon _icon;
+    QString _toolTip;
 
     void *_statusItem;
     void *_statusItemListener;

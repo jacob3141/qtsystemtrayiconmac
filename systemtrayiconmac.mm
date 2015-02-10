@@ -68,11 +68,33 @@ void SystemTrayIconMac::initialize() {
     [(StatusItemListener*)_statusItemListener configureForTrayIcon:this];
 }
 
+void SystemTrayIconMac::show() {
+}
+
+QIcon SystemTrayIconMac::icon() const {
+    return _icon;
+}
+
 void SystemTrayIconMac::setIcon(QIcon icon, unsigned int margin) {
+    _icon = icon;
+
+    // Retrieve the thickness of the system status bar in logical pixels.
     CGFloat thickness = [[NSStatusBar systemStatusBar] thickness];
+
+    // Calculate a view size (in logical pixels). MacOSX will center it
+    // automatically, so we need to provide a margin if our icon is smaller
+    // than the system status bar.
     NSSize s;
     s.width = s.height = thickness - margin;
-    [(NSStatusItem *)_statusItem setImage: [[NSImage alloc]initWithCGImage: QtMac::toCGImageRef(icon.pixmap(QSize(s.width*4, s.width*4))) size: s]]  ;
+
+    // In order to display retina graphics correctly we stretch the texture,
+    // but create an NSImage with smaller size. QtMac::toNSImage does not work,
+    // because it implicitly assumes that the size in pixels is equal to the
+    // logical pixels. On "2x retina screens" the physical pixels are twice the
+    // width and height of a physical pixel. This is confusing, because in order
+    // to get a sharply rendered icon, we need to provide a 44x44 pixel image
+    // (physical pixels) for a 22x22 icon (logical pixels).
+    [(NSStatusItem *)_statusItem setImage: [[NSImage alloc]initWithCGImage: QtMac::toCGImageRef(icon.pixmap(QSize(s.width*4, s.width*4))) size: s]];
 }
 
 void SystemTrayIconMac::setText(QString text) {
@@ -92,6 +114,14 @@ void SystemTrayIconMac::trigger() {
     emit activated(QSystemTrayIcon::Trigger);
 }
 
+QString SystemTrayIconMac::toolTip() const {
+    return _toolTip;
+}
+
+void SystemTrayIconMac::setToolTip(const QString &tip) {
+    _toolTip = tip;
+}
+
 QRect SystemTrayIconMac::geometry() const {
     NSRect screenRect = [[[NSScreen screens] objectAtIndex:0] frame];
     NSButton *trayIconButton = [(NSStatusItem*)_statusItem button];
@@ -103,6 +133,11 @@ QRect SystemTrayIconMac::geometry() const {
     frame.origin.y = screenRect.size.height - frame.origin.y;
 
     return QRect(frame.origin.x, frame.origin.y, frame.size.width, frame.size.height);
+}
+
+bool SystemTrayIconMac::isVisible() const {
+    // Always visible
+    return true;
 }
 
 
